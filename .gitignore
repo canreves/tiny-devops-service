@@ -1,1 +1,7 @@
-guide.md
+guide/
+.venv/
+__pycache__/
+.pytest_cache/
+.env
+.DS_Store
+
