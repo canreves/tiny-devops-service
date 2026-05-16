@@ -2,7 +2,7 @@
 
 Tiny HTTP service for the Insider One DevOps internship case study.
 
-This repository currently contains the Day 1 foundation: a small Python/FastAPI HTTP service with unit tests and a Docker image. Kubernetes, Helm, CI/CD, and observability will be added in later steps of the case study.
+This repository currently contains the Day 1 foundation: a small Python/FastAPI HTTP service with unit tests and a Docker image. Minikube, Kubernetes, Helm, CI/CD, and observability will be added in later steps of the case study.
 
 ## Endpoints
 
