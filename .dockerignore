@@ -1,0 +1,14 @@
+.git
+.github
+.venv
+__pycache__
+.pytest_cache
+.env
+.DS_Store
+tests
+guide
+docs
+helm
+RUNBOOK.md
+SECURITY.md
+CHANGELOG.md
