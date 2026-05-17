@@ -1,0 +1,49 @@
+replicaCount: 1
+
+image:
+  repository: tiny-devops-service
+  tag: local
+  pullPolicy: IfNotPresent
+
+imagePullSecrets: []
+
+service:
+  type: ClusterIP
+  port: 80
+  targetPort: 8000
+
+ingress:
+  enabled: true
+  className: nginx
+  host: tiny-devops.local
+  path: /
+  pathType: Prefix
+
+config:
+  appVersion: dev
+  logLevel: info
+
+secret:
+  enabled: true
+  exampleToken: ""
+
+resources:
+  requests:
+    cpu: 50m
+    memory: 64Mi
+  limits:
+    cpu: 250m
+    memory: 256Mi
+
+probes:
+  path: /healthz
+  initialDelaySeconds: 5
+  periodSeconds: 10
+  timeoutSeconds: 2
+  failureThreshold: 3
+
+autoscaling:
+  enabled: false
+  minReplicas: 1
+  maxReplicas: 3
+  targetCPUUtilizationPercentage: 70

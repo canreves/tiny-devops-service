@@ -1,0 +1,23 @@
+replicaCount: 2
+
+image:
+  repository: tiny-devops-service
+  tag: "0.1.0"
+  pullPolicy: IfNotPresent
+
+ingress:
+  enabled: true
+  className: nginx
+  host: tiny-devops.example.com
+
+config:
+  appVersion: "0.1.0"
+  logLevel: info
+
+resources:
+  requests:
+    cpu: 100m
+    memory: 128Mi
+  limits:
+    cpu: 500m
+    memory: 512Mi

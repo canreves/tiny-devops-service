@@ -1,0 +1,23 @@
+replicaCount: 1
+
+image:
+  repository: tiny-devops-service
+  tag: local
+  pullPolicy: IfNotPresent
+
+ingress:
+  enabled: true
+  className: nginx
+  host: tiny-dev.local
+
+config:
+  appVersion: dev
+  logLevel: debug
+
+resources:
+  requests:
+    cpu: 50m
+    memory: 64Mi
+  limits:
+    cpu: 250m
+    memory: 256Mi
