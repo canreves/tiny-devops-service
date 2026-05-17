@@ -75,6 +75,15 @@ Build the image:
 docker build -t tiny-devops-service:local .
 ```
 
+To include the current commit in `/version`, pass build arguments:
+
+```bash
+docker build \
+  --build-arg APP_VERSION=dev \
+  --build-arg GIT_SHA=$(git rev-parse --short HEAD) \
+  -t tiny-devops-service:local .
+```
+
 Run the container:
 
 ```bash
@@ -89,6 +98,12 @@ Verify the container:
 curl http://localhost:8002/ping
 curl http://localhost:8002/healthz
 curl http://localhost:8002/version
+```
+
+You can also use Docker Compose for local container development:
+
+```bash
+GIT_SHA=$(git rev-parse --short HEAD) docker compose up --build
 ```
 
 ## Make Targets
