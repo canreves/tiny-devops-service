@@ -129,3 +129,39 @@ The app reads these optional environment variables:
 | `GIT_SHA` | `local` | Commit SHA or build identifier. |
 
 See `.env.example` for the expected variable names.
+
+## Kubernetes and Helm
+
+Day 2 deploys the Docker image to minikube with the Helm chart in `helm/`.
+
+Start minikube and load the local image:
+
+```bash
+minikube start --driver=docker
+make build
+minikube image load tiny-devops-service:local
+```
+
+Validate and render the chart:
+
+```bash
+helm lint ./helm
+helm template tiny-devops-service ./helm -f ./helm/values-dev.yaml
+```
+
+Deploy the dev environment:
+
+```bash
+helm upgrade --install tiny-devops-service ./helm -f ./helm/values-dev.yaml
+kubectl rollout status deployment/tiny-devops-service
+kubectl get pods
+```
+
+Test through the Service:
+
+```bash
+kubectl port-forward service/tiny-devops-service 8080:80
+curl http://localhost:8080/ping
+```
+
+The dev and prod values files intentionally differ in replica count, ingress host, log level, and resource requests/limits.
