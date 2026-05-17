@@ -164,4 +164,16 @@ kubectl port-forward service/tiny-devops-service 8080:80
 curl http://localhost:8080/ping
 ```
 
+Exercise a rollout and rollback:
+
+```bash
+docker tag tiny-devops-service:local tiny-devops-service:rollout-test
+minikube image load tiny-devops-service:rollout-test
+helm upgrade tiny-devops-service ./helm -f ./helm/values-dev.yaml --set image.tag=rollout-test
+kubectl rollout status deployment/tiny-devops-service
+helm history tiny-devops-service
+helm rollback tiny-devops-service 1
+kubectl rollout status deployment/tiny-devops-service
+```
+
 The dev and prod values files intentionally differ in replica count, ingress host, log level, and resource requests/limits.
