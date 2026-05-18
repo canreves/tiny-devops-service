@@ -177,3 +177,49 @@ kubectl rollout status deployment/tiny-devops-service
 ```
 
 The dev and prod values files intentionally differ in replica count, ingress host, log level, and resource requests/limits.
+
+## CI/CD and Supply Chain
+
+Day 3 uses GitHub Actions to validate the service and publish images to GitHub Container Registry.
+
+The CI workflow runs on pull requests, pushes to `main`, and version tags:
+
+```text
+.github/workflows/ci.yml
+```
+
+It performs these checks:
+
+- scans the repository with Gitleaks for committed secrets
+- installs Python dependencies
+- checks Python syntax with `compileall`
+- runs unit tests with `pytest`
+- builds a local Docker image
+- scans the image with Trivy and fails on fixed HIGH or CRITICAL vulnerabilities
+- pushes successful `main` and `v*` tag images to GHCR
+
+Images are published under:
+
+```text
+ghcr.io/canreves/tiny-devops-service
+```
+
+The workflow uses the built-in `GITHUB_TOKEN` for GHCR authentication. No long-lived registry token is required.
+
+Create a version tag and GitHub Release:
+
+```bash
+git tag v0.1.0
+git push origin v0.1.0
+```
+
+Pushing a `v*` tag also runs `.github/workflows/release.yml`, which creates the GitHub Release from `CHANGELOG.md` if it does not already exist.
+
+For Track B, CI does not deploy directly to local minikube because GitHub-hosted runners cannot reach a laptop cluster. The deploy handoff is the pushed GHCR image; a local minikube update can be done with Helm:
+
+```bash
+helm upgrade tiny-devops-service ./helm \
+  -f ./helm/values-dev.yaml \
+  --set image.repository=ghcr.io/canreves/tiny-devops-service \
+  --set image.tag=sha-<commit-sha>
+```
