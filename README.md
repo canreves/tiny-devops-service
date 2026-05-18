@@ -196,7 +196,7 @@ It performs these checks:
 - runs unit tests with `pytest`
 - builds a local Docker image
 - scans the image with Trivy and fails on fixed HIGH or CRITICAL vulnerabilities
-- pushes successful `main` and `v*` tag images to GHCR
+- pushes successful `main` images to GHCR
 
 Images are published under:
 
@@ -213,7 +213,7 @@ git tag v0.1.0
 git push origin v0.1.0
 ```
 
-Pushing a `v*` tag also runs `.github/workflows/release.yml`, which creates the GitHub Release from `CHANGELOG.md` if it does not already exist.
+Pushing a `v*` tag runs `.github/workflows/release.yml`, which creates the GitHub Release from `CHANGELOG.md` if it does not already exist.
 
 For Track B, CI does not deploy directly to local minikube because GitHub-hosted runners cannot reach a laptop cluster. The deploy handoff is the pushed GHCR image; a local minikube update can be done with Helm:
 
