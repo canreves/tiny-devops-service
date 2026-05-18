@@ -1,4 +1,4 @@
-FROM python:3.12-slim AS builder
+FROM python:3.12-alpine AS builder
 
 WORKDIR /app
 
@@ -9,7 +9,7 @@ RUN python -m venv /venv \
     && /venv/bin/pip install --no-cache-dir -r requirements.txt
 
 
-FROM python:3.12-slim
+FROM python:3.12-alpine
 
 ARG APP_VERSION=dev
 ARG GIT_SHA=local
@@ -22,7 +22,7 @@ ENV GIT_SHA=${GIT_SHA}
 
 WORKDIR /app
 
-RUN useradd --create-home --shell /usr/sbin/nologin appuser
+RUN adduser -D -H -s /sbin/nologin appuser
 
 COPY --from=builder /venv /venv
 COPY app ./app
