@@ -20,3 +20,19 @@ def test_version_returns_defaults() -> None:
         "version": "dev",
         "commit": "local"
     }
+
+def test_metrics_endpoint_exposes_prometheus_metrics() -> None:
+    client.get("/ping")
+
+    response = client.get("/metrics")
+
+    assert response.status_code == 200
+    assert "text/plain" in response.headers["content-type"]
+    assert "http_requests_total" in response.text
+    assert 'path="/ping"' in response.text
+
+def test_request_id_header_is_returned() -> None:
+    response = client.get("/ping", headers={"X-Request-ID": "test-request-id"})
+
+    assert response.status_code == 200
+    assert response.headers["X-Request-ID"] == "test-request-id"
