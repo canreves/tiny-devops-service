@@ -2,7 +2,7 @@
 
 Tiny HTTP service for the Insider One DevOps internship case study.
 
-This repository currently contains the Day 1 foundation: a small Python/FastAPI HTTP service with unit tests and a Docker image. Minikube, Kubernetes, Helm, CI/CD, and observability will be added in later steps of the case study.
+This repository contains a small Python/FastAPI HTTP service with tests, a Docker image, a Helm chart for minikube, GitHub Actions CI/CD, and local observability with Prometheus and Grafana.
 
 ## Endpoints
 
@@ -11,6 +11,7 @@ This repository currently contains the Day 1 foundation: a small Python/FastAPI 
 | `GET` | `/ping` | Simple smoke check. Returns `pong`. |
 | `GET` | `/healthz` | Health endpoint for probes. |
 | `GET` | `/version` | Returns version and commit metadata from environment variables. |
+| `GET` | `/metrics` | Prometheus metrics endpoint. |
 
 ## Requirements
 
@@ -64,7 +65,7 @@ python -m pytest
 Expected result:
 
 ```text
-3 passed
+5 passed
 ```
 
 ## Docker
@@ -115,6 +116,9 @@ make test
 make run
 make build
 make docker-run
+make helm-lint
+make deploy-dev
+make rollout-status
 ```
 
 The Makefile uses the local virtual environment by default (`./.venv/bin/python` and `./.venv/bin/uvicorn`). Create the virtual environment and install dependencies before using `make test` or `make run`.
@@ -177,6 +181,52 @@ kubectl rollout status deployment/tiny-devops-service
 ```
 
 The dev and prod values files intentionally differ in replica count, ingress host, log level, and resource requests/limits.
+
+## Observability
+
+Day 4 adds request correlation, structured logs, Prometheus metrics, a ServiceMonitor, a PrometheusRule, and a Grafana dashboard.
+
+Application behavior:
+
+- every response includes `X-Request-ID`
+- incoming `X-Request-ID` values are preserved for request correlation
+- completed HTTP requests are logged as JSON
+- `/metrics` exposes request counters and latency histograms
+
+Install the local monitoring stack:
+
+```bash
+helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
+helm repo update
+helm upgrade --install monitoring prometheus-community/kube-prometheus-stack \
+  --namespace monitoring \
+  --create-namespace
+```
+
+Enable chart-managed monitoring resources:
+
+```bash
+helm upgrade --install tiny-devops-service ./helm \
+  -f ./helm/values-dev.yaml \
+  --set serviceMonitor.enabled=true \
+  --set prometheusRule.enabled=true
+```
+
+Provision the Grafana dashboard from the repository:
+
+```bash
+kubectl create configmap tiny-devops-service-grafana-dashboard \
+  -n monitoring \
+  --from-file=tiny-devops-service-dashboard.json=docs/grafana/tiny-devops-service-dashboard.json \
+  --dry-run=client \
+  -o yaml | kubectl apply -f -
+
+kubectl label configmap -n monitoring tiny-devops-service-grafana-dashboard \
+  grafana_dashboard=1 \
+  --overwrite
+```
+
+See `RUNBOOK.md` for verification, PromQL queries, Grafana access, and rollback steps.
 
 ## CI/CD and Supply Chain
 
