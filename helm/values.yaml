@@ -56,7 +56,11 @@ serviceMonitor:
   enabled: false
   interval: 30s
   scrapeTimeout: 10s
+  labels:
+    release: monitoring
 
 prometheusRule:
   enabled: false
   errorRateThreshold: 0
+  labels:
+    release: monitoring

@@ -5,6 +5,9 @@ metadata:
   name: {{ include "tiny-devops-service.fullname" . }}-alerts
   labels:
     {{- include "tiny-devops-service.labels" . | nindent 4 }}
+    {{- with .Values.prometheusRule.labels }}
+    {{- toYaml . | nindent 4 }}
+    {{- end }}
 spec:
   groups:
     - name: {{ include "tiny-devops-service.fullname" . }}.rules
