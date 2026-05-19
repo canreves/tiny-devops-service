@@ -1,0 +1,20 @@
+{{- if .Values.prometheusRule.enabled }}
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: {{ include "tiny-devops-service.fullname" . }}-alerts
+  labels:
+    {{- include "tiny-devops-service.labels" . | nindent 4 }}
+spec:
+  groups:
+    - name: {{ include "tiny-devops-service.fullname" . }}.rules
+      rules:
+        - alert: TinyDevopsServiceHighErrorRate
+          expr: sum(rate(http_requests_total{status_code=~"5.."}[5m])) > {{ .Values.prometheusRule.errorRateThreshold }}
+          for: 2m
+          labels:
+            severity: warning
+          annotations:
+            summary: tiny-devops-service is returning 5xx responses
+            description: The service has returned at least one 5xx response in the last 5 minutes.
+{{- end }}

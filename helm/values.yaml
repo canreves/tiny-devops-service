@@ -11,6 +11,10 @@ service:
   type: ClusterIP
   port: 80
   targetPort: 8000
+  annotations:
+    prometheus.io/scrape: "true"
+    prometheus.io/path: /metrics
+    prometheus.io/port: "80"
 
 ingress:
   enabled: true
@@ -47,3 +51,12 @@ autoscaling:
   minReplicas: 1
   maxReplicas: 3
   targetCPUUtilizationPercentage: 70
+
+serviceMonitor:
+  enabled: false
+  interval: 30s
+  scrapeTimeout: 10s
+
+prometheusRule:
+  enabled: false
+  errorRateThreshold: 0
